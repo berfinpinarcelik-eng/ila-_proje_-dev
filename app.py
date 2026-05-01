@@ -16,8 +16,7 @@ st.set_page_config(
     layout="wide"
 )
 
-# Helpers & Caching
-@st.cache_resource
+# Helpers (Cache removed to force update)
 def get_agents():
     return PharmaGuardAgents()
 
