@@ -141,6 +141,8 @@ Sistem şu an demo modunda çalışmaktadır.
                 response = self._get_orchestrator().invoke([SystemMessage(content=system_prompt), HumanMessage(content=full_prompt)])
             return response.content
         except Exception as e:
-            if any(x in str(e).upper() for x in ["QUOTA", "429", "LIMIT"]):
-                return self._mock_orchestration("KOTA DOLDU - DEMO")
-            return self._mock_orchestration(f"Hata: {str(e)[:50]}")
+            error_str = str(e).upper()
+            # Catch Quota, Rate Limit, and Invalid API Key errors to trigger Demo Mode
+            if any(x in error_str for x in ["QUOTA", "429", "LIMIT", "401", "INVALID", "AUTHENTICATION"]):
+                return self._mock_orchestration("KOTA/KEY HATASI - DEMO MODU")
+            return self._mock_orchestration(f"Sistem Hatası: {str(e)[:50]}")

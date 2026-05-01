@@ -30,6 +30,9 @@ def create_pdf_report(markdown_text: str, filename: str = "rapor.pdf"):
     # if a proper unicode font isn't loaded.
     tr_map = str.maketrans("ğĞüÜşŞİıçÇöÖ", "gGuUsSIicCoO")
     
+    # Set margins explicitly
+    pdf.set_margins(15, 15, 15)
+    
     lines = clean_text.split('\n')
     for line in lines:
         clean_line = line.strip()
@@ -42,8 +45,11 @@ def create_pdf_report(markdown_text: str, filename: str = "rapor.pdf"):
         safe_line = "".join(c for c in translated_line if ord(c) < 256).strip()
         
         if len(safe_line) > 0:
-            # Use effective page width (epw) to ensure it fits the horizontal space
-            pdf.multi_cell(w=pdf.epw, h=10, txt=safe_line)
+            # Ensure we are at the start of the line to avoid horizontal space errors
+            pdf.set_x(15)
+            # Use 0 to indicate full width from current X to right margin
+            pdf.multi_cell(0, 8, txt=safe_line, align='L')
+            pdf.ln(2)
             
     if not os.path.exists("data"):
         os.makedirs("data", exist_ok=True)
