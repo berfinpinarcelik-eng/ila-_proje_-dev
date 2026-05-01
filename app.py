@@ -65,7 +65,7 @@ with st.sidebar:
         st.markdown('<span class="status-badge ready">Mod: CANLI (GROQ)</span>', unsafe_allow_html=True)
 
 # Main UI
-st.header("💊 Pharma-Guard AI: Akıllı İlaç Denetçisi")
+st.header("💊 Pharma-Guard AI: Akıllı İlaç Denetçisi (GROQ V2)")
 st.info("Sistem tamamen Groq/Llama altyapısına taşınmıştır. Gemini bağlantısı kaldırıldı.")
 
 col1, col2 = st.columns([1, 1], gap="large")
