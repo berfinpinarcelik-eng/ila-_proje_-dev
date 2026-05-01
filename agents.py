@@ -135,7 +135,7 @@ Sistem şu an demo modunda çalışmaktadır.
             
             if is_image and ("error" in vision_info or not vision_info or vision_info.get("brand_name") == "NOT_READABLE"):
                 from langchain_groq import ChatGroq
-                vision_model = ChatGroq(model="llama-3.2-11b-vision-preview", groq_api_key=self.groq_api_key)
+                vision_model = ChatGroq(model="llama-3.2-11b-vision", groq_api_key=self.groq_api_key)
                 image_content = {"type": "image_url", "image_url": {"url": f"data:image/jpeg;base64,{base64.b64encode(input_data).decode('utf-8')}"}}
                 response = vision_model.invoke([SystemMessage(content=system_prompt), HumanMessage(content=[{"type": "text", "text": full_prompt}, image_content])])
             else:
