@@ -31,8 +31,9 @@ class PharmaGuardAgents:
     def _get_orchestrator(self):
         if self._orchestrator is None:
             from langchain_groq import ChatGroq
+            # Using Llama 3.1 8B for better reliability and higher rate limits on free tier
             self._orchestrator = ChatGroq(
-                model="llama-3.3-70b-versatile",
+                model="llama-3.1-8b-instant",
                 groq_api_key=self.groq_api_key,
                 temperature=0.1
             )
@@ -141,8 +142,6 @@ Sistem şu an demo modunda çalışmaktadır.
                 response = self._get_orchestrator().invoke([SystemMessage(content=system_prompt), HumanMessage(content=full_prompt)])
             return response.content
         except Exception as e:
-            error_str = str(e).upper()
-            # Catch Quota, Rate Limit, and Invalid API Key errors to trigger Demo Mode
-            if any(x in error_str for x in ["QUOTA", "429", "LIMIT", "401", "INVALID", "AUTHENTICATION"]):
-                return self._mock_orchestration("KOTA/KEY HATASI - DEMO MODU")
-            return self._mock_orchestration(f"Sistem Hatası: {str(e)[:50]}")
+            error_str = str(e)
+            # Return the real error to help the user debug why it's not working
+            return f"### ❌ Sistem Hatası\nAnaliz sırasında teknik bir sorun oluştu:\n\n`{error_str}`\n\nLütfen API anahtarınızı veya internet bağlantınızı kontrol edin."
