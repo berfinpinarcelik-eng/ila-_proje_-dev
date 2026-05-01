@@ -12,7 +12,7 @@ data/
 PharmaAgent_Project/data/
 
 # Environment Variables (Security)
-# .env (Removed to allow push)
+.env
 
 # Streamlit
 .streamlit/
