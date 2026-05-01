@@ -32,14 +32,18 @@ def create_pdf_report(markdown_text: str, filename: str = "rapor.pdf"):
     
     lines = clean_text.split('\n')
     for line in lines:
-        if line.strip() == "":
+        clean_line = line.strip()
+        if not clean_line:
             pdf.ln(5)
             continue
         
         # Translate Turkish characters and strip out emojis/unsupported chars
-        translated_line = line.translate(tr_map)
-        safe_line = "".join(c for c in translated_line if ord(c) < 256)
-        pdf.multi_cell(0, 10, safe_line)
+        translated_line = clean_line.translate(tr_map)
+        safe_line = "".join(c for c in translated_line if ord(c) < 256).strip()
+        
+        if len(safe_line) > 0:
+            # Use effective page width (epw) to ensure it fits the horizontal space
+            pdf.multi_cell(w=pdf.epw, h=10, txt=safe_line)
             
     if not os.path.exists("data"):
         os.makedirs("data", exist_ok=True)
