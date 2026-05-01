@@ -106,12 +106,33 @@ Sistem şu an demo modunda çalışmaktadır.
             if self._is_demo_mode(): return self._mock_orchestration("İlaç")
             vision_info = self.vision_scanner(input_data) if is_image else {}
             
-            system_prompt = "Sen Pharma-Guard AI asistanısın. Llama-3.3 altyapısını kullanıyorsun. Analizlerini Türkçe yap."
-            drug_name = vision_info.get("brand_name", "")
-            rag_context = self.rag_specialist(drug_name) if drug_name else ""
-            full_prompt = f"{system_prompt}\n\nVision: {json.dumps(vision_info)}\n\nRAG: {rag_context}\n\nDetaylı raporu oluştur."
+            # More robust and professional prompt
+            system_prompt = """
+            Sen Pharma-Guard AI asistanısın, uzman bir tıbbi farmakolog ve görsel analiz uzmanı olarak görev yapıyorsun.
+            Llama-3.3 altyapısını kullanarak, kullanıcıya yüklediği ilaç hakkında profesyonel, doğru ve anlaşılır bir analiz raporu sunmalısın.
             
-            if is_image and ("error" in vision_info or not vision_info):
+            RAPOR FORMATI:
+            1. [İlaç Bilgileri]: Marka adı, etken madde ve dozaj.
+            2. [Kullanım Amacı]: Bu ilaç ne için kullanılır? (RAG verisine ve genel tıbbi bilgine dayan)
+            3. [Prospektüs Özet]: Kullanım talimatları ve önemli uyarılar.
+            4. [Güvenlik Notu]: Yan etkiler ve dikkat edilmesi gerekenler.
+            
+            Kural: Eğer RAG verisi yetersizse, kendi tıbbi bilgi birikimini kullanarak ilacı açıkla ancak bunun genel bilgi olduğunu belirt.
+            Analizlerini mutlaka TÜRKÇE yap.
+            """
+            
+            drug_name = vision_info.get("brand_name", "")
+            rag_context = self.rag_specialist(drug_name) if drug_name and drug_name != "NOT_READABLE" else "RAG verisi bulunamadı."
+            
+            full_prompt = f"""
+            Görsel Analiz Sonuçları: {json.dumps(vision_info)}
+            RAG (Prospektüs) Verisi: {rag_context}
+            
+            Lütfen yukarıdaki verilere dayanarak detaylı ve profesyonel bir ilaç analiz raporu oluştur. 
+            Eğer görselden ilaç adı tam okunmuyorsa, kullanıcıdan daha net bir fotoğraf iste.
+            """
+            
+            if is_image and ("error" in vision_info or not vision_info or vision_info.get("brand_name") == "NOT_READABLE"):
                 from langchain_groq import ChatGroq
                 vision_model = ChatGroq(model="llama-3.2-11b-vision-preview", groq_api_key=self.groq_api_key)
                 image_content = {"type": "image_url", "image_url": {"url": f"data:image/jpeg;base64,{base64.b64encode(input_data).decode('utf-8')}"}}
